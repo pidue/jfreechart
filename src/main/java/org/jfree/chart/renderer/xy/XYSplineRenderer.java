@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -295,12 +296,13 @@ public class XYSplineRenderer extends XYLineAndShapeRenderer {
      * @param xAxis  the domain axis.
      * @param yAxis  the range axis.
      * @param dataArea  the area within which the data is being drawn.
+     * @param entities the entity collection.
      */
     @Override
     protected void drawPrimaryLineAsPath(XYItemRendererState state,
             Graphics2D g2, XYPlot plot, XYDataset dataset, int pass,
             int series, int item, ValueAxis xAxis, ValueAxis yAxis,
-            Rectangle2D dataArea) {
+            Rectangle2D dataArea, EntityCollection entities) {
 
         XYSplineState s = (XYSplineState) state;
         RectangleEdge xAxisLocation = plot.getDomainAxisEdge();

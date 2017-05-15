@@ -335,6 +335,14 @@ public class DeviationRenderer extends XYLineAndShapeRenderer {
                 drState.upperCoordinates.clear();
             }
         }
+        
+        // setup for collecting optional entity info...
+        EntityCollection entities = null;
+        if (info != null) {
+            entities = info.getOwner().getEntityCollection();
+        }
+
+            
         if (isLinePass(pass)) {
 
             // the following code handles the line for the y-values...it's
@@ -347,19 +355,12 @@ public class DeviationRenderer extends XYLineAndShapeRenderer {
 
             if (getItemLineVisible(series, item)) {
                 drawPrimaryLineAsPath(state, g2, plot, dataset, pass,
-                        series, item, domainAxis, rangeAxis, dataArea);
+                        series, item, domainAxis, rangeAxis, dataArea, entities);
             }
         }
 
         // second pass adds shapes where the items are ..
         else if (isItemPass(pass)) {
-
-            // setup for collecting optional entity info...
-            EntityCollection entities = null;
-            if (info != null) {
-                entities = info.getOwner().getEntityCollection();
-            }
-
             drawSecondaryPass(g2, plot, dataset, pass, series, item,
                     domainAxis, dataArea, rangeAxis, crosshairState, entities);
         }

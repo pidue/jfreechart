@@ -73,22 +73,29 @@
 
 package org.jfree.chart.renderer.xy;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.entity.XYLineEntity;
 import org.jfree.chart.event.RendererChangeEvent;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -170,6 +177,12 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * path.
      */
     private boolean drawSeriesLineAsPath;
+        
+    /** A list of line entity stokes (one per series). */
+    private Map<Integer, BasicStroke> lineEntityStrokeMap;
+
+    /** The default line entity stroke. */
+    private BasicStroke defaultLineEntityStroke;    
 
     /**
      * Creates a new renderer with both lines and shapes visible.
@@ -201,6 +214,8 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
                                        // default, not outline paint
 
         this.drawSeriesLineAsPath = false;
+        
+        this.lineEntityStrokeMap = new HashMap<Integer, BasicStroke>();
     }
 
     /**
@@ -230,6 +245,30 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
             fireChangeEvent();
         }
     }
+
+    public float getDefaultLineEntityWidth() {
+        return defaultLineEntityStroke.getLineWidth();
+    }
+
+    public void setDefaultLineEntityStroke(BasicStroke defaultLineEntityStroke) {
+        this.defaultLineEntityStroke = defaultLineEntityStroke;
+    }
+    
+    public void setDefaultLineEntityWidth(float width) {
+        this.defaultLineEntityStroke =  new BasicStroke(width);
+    }
+    
+    public float getLineEntityWidth(int series) {
+        return this.lineEntityStrokeMap.get(series).getLineWidth();
+    }
+    
+    public void setSeriesLineEntityWidth(int series, float width) {
+        this.lineEntityStrokeMap.put(series, new BasicStroke(width));
+    }
+
+    public void setSeriesLineEntityStroke(BasicStroke stroke, int series) {
+        this.lineEntityStrokeMap.put(series, stroke);
+    }    
 
     /**
      * Returns the number of passes through the data that the renderer requires
@@ -711,6 +750,40 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
     }
 
     /**
+     * Adds an entity to the collection.  Note the the {@code entityX} and
+     * {@code entityY} coordinates are in Java2D space, should already be 
+     * adjusted for the plot orientation, and will only be used if 
+     * {@code hotspot} is {@code null}.
+     *
+     * @param entities  the entity collection being populated.
+     * @param line  the entity line
+     * @param dataset  the dataset.
+     * @param series  the series.
+     * @param item  the item.
+     */
+    protected void addLineEntity(EntityCollection entities, Shape line, XYDataset dataset, int series) {
+        if (!getItemCreateEntity(series, 0 /* dummy item index */)) {
+            return;
+        }
+        
+        String tip = null;
+        XYToolTipGenerator generator = getToolTipGenerator(series, 0 /* dummy item index */);
+        if (generator != null) {
+            tip = generator.generateToolTip(dataset, series, 0 /* dummy item index */);
+        }
+        String url = null;
+        if (getURLGenerator() != null) {
+            url = getURLGenerator().generateURL(dataset, series, 0 /* dummy item index */);
+        }        
+        
+        Stroke stroke = lineEntityStrokeMap.getOrDefault(series, defaultLineEntityStroke);
+        if (stroke != null) {
+            Shape strokedShape = stroke.createStrokedShape(line);
+            entities.add(new XYLineEntity(strokedShape, dataset, series, tip, url));
+        }
+    }
+
+    /**
      * Draws the visual representation of a single data item.
      *
      * @param g2  the graphics device.
@@ -738,29 +811,28 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         if (!getItemVisible(series, item)) {
             return;
         }
-
+            
+        // setup for collecting optional entity info...
+        EntityCollection entities = null;
+        if (info != null && info.getOwner() != null) {
+            entities = info.getOwner().getEntityCollection();
+        }
+            
         // first pass draws the background (lines, for instance)
         if (isLinePass(pass)) {
             if (getItemLineVisible(series, item)) {
-                if (this.drawSeriesLineAsPath) {
+                if (this.drawSeriesLineAsPath && false) {
                     drawPrimaryLineAsPath(state, g2, plot, dataset, pass,
-                            series, item, domainAxis, rangeAxis, dataArea);
+                            series, item, domainAxis, rangeAxis, dataArea, entities);
                 }
                 else {
                     drawPrimaryLine(state, g2, plot, dataset, pass, series,
-                            item, domainAxis, rangeAxis, dataArea);
+                            item, domainAxis, rangeAxis, dataArea, entities);
                 }
             }
         }
         // second pass adds shapes where the items are ..
         else if (isItemPass(pass)) {
-
-            // setup for collecting optional entity info...
-            EntityCollection entities = null;
-            if (info != null && info.getOwner() != null) {
-                entities = info.getOwner().getEntityCollection();
-            }
-
             drawSecondaryPass(g2, plot, dataset, pass, series, item,
                     domainAxis, dataArea, rangeAxis, crosshairState, entities);
         }
@@ -805,6 +877,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @param pass  the pass.
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
+     * @param entities the entity collection.
      */
     protected void drawPrimaryLine(XYItemRendererState state,
                                    Graphics2D g2,
@@ -815,7 +888,8 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
                                    int item,
                                    ValueAxis domainAxis,
                                    ValueAxis rangeAxis,
-                                   Rectangle2D dataArea) {
+                                   Rectangle2D dataArea, 
+                                   EntityCollection entities) {
         if (item == 0) {
             return;
         }
@@ -859,6 +933,11 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         visible = LineUtils.clipLine(state.workingLine, dataArea);
         if (visible) {
             drawFirstPassShape(g2, pass, series, item, state.workingLine);
+            
+            // collect entities
+            if (entities != null) {
+                addLineEntity(entities, state.workingLine, dataset, series);
+            }
         }
     }
 
@@ -896,11 +975,12 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
      * @param dataArea  the area within which the data is being drawn.
+     * @param entities the entity collection.
      */
     protected void drawPrimaryLineAsPath(XYItemRendererState state,
             Graphics2D g2, XYPlot plot, XYDataset dataset, int pass,
             int series, int item, ValueAxis domainAxis, ValueAxis rangeAxis,
-            Rectangle2D dataArea) {
+            Rectangle2D dataArea, EntityCollection entities) {
 
         RectangleEdge xAxisLocation = plot.getDomainAxisEdge();
         RectangleEdge yAxisLocation = plot.getRangeAxisEdge();
@@ -935,6 +1015,11 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         if (item == s.getLastItemIndex()) {
             // draw path
             drawFirstPassShape(g2, pass, series, item, s.seriesPath);
+            
+            // collect entities
+            if (entities != null) {
+                addLineEntity(entities, s.seriesPath, dataset, series);
+            }
         }
     }
 
@@ -1101,7 +1186,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         return result;
     }
 
-    /**
+    /** 
      * Returns a clone of the renderer.
      *
      * @return A clone.
@@ -1120,6 +1205,9 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
                 = (BooleanList) this.seriesShapesVisible.clone();
         clone.seriesShapesFilled
                 = (BooleanList) this.seriesShapesFilled.clone();
+        
+        // shallow copy: Stroke is not mutable
+        clone.lineEntityStrokeMap = new HashMap<Integer, BasicStroke>(this.lineEntityStrokeMap);
         return clone;
     }
 
@@ -1179,6 +1267,11 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
             return false;
         }
         if (this.drawSeriesLineAsPath != that.drawSeriesLineAsPath) {
+            return false;
+        }
+        if (!ObjectUtils.equal(
+            this.lineEntityStrokeMap, that.lineEntityStrokeMap)
+        ) {
             return false;
         }
         return true;
