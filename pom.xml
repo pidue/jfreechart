@@ -10,7 +10,7 @@
 
     <artifactId>jfreechart</artifactId>
     <groupId>org.jfree</groupId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-trenolab-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <organization>
@@ -85,11 +85,17 @@
     </dependencies>
 
     <distributionManagement>
+        <repository>
+            <id>trenolabdrive-releases-repo</id>
+            <name>TRENOlab S3 Release Repository</name>
+            <url>https://trenolabdrive.bot.nu/nexus/content/repositories/releases</url>
+        </repository>
         <snapshotRepository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>trenolabdrive-snapshots-repo</id>
+            <name>TRENOlab S3 Snapshot Repository</name>
+            <url>https://trenolabdrive.bot.nu/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
-    </distributionManagement>    
+    </distributionManagement>
     
     <build>
         <testSourceDirectory>src/test/java</testSourceDirectory>
