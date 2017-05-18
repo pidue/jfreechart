@@ -685,8 +685,8 @@ public abstract class ValueAxis extends Axis
                 g2.setPaint(getTickLabelPaint());
                 float[] anchorPoint = calculateAnchorPoint(tick, cursor,
                         dataArea, edge);
-                if (tick instanceof LogTick) {
-                    LogTick lt = (LogTick) tick;
+                if (tick instanceof AttributedStringTick) {
+                    AttributedStringTick lt = (AttributedStringTick) tick;
                     if (lt.getAttributedLabel() == null) {
                         continue;
                     }
@@ -853,8 +853,8 @@ public abstract class ValueAxis extends Axis
             while (iterator.hasNext()) {
                 Tick tick = (Tick) iterator.next();
                 Rectangle2D labelBounds = null;
-                if (tick instanceof LogTick) {
-                    LogTick lt = (LogTick) tick;
+                if (tick instanceof AttributedStringTick) {
+                    AttributedStringTick lt = (AttributedStringTick) tick;
                     if (lt.getAttributedLabel() != null) {
                         labelBounds = AttrStringUtils.getTextBounds(
                                 lt.getAttributedLabel(), g2);
@@ -902,8 +902,8 @@ public abstract class ValueAxis extends Axis
             while (iterator.hasNext()) {
                 Tick tick = (Tick) iterator.next();
                 Rectangle2D labelBounds = null;
-                if (tick instanceof LogTick) {
-                    LogTick lt = (LogTick) tick;
+                if (tick instanceof AttributedStringTick) {
+                    AttributedStringTick lt = (AttributedStringTick) tick;
                     if (lt.getAttributedLabel() != null) {
                         labelBounds = AttrStringUtils.getTextBounds(
                                 lt.getAttributedLabel(), g2);

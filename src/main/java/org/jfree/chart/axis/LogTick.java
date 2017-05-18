@@ -46,7 +46,7 @@ import org.jfree.chart.ui.TextAnchor;
 /**
  * A tick from a {@link LogAxis}.
  */
-public class LogTick extends ValueTick {
+public class LogTick extends ValueTick implements AttributedStringTick {
     
     /** The attributed string for the tick label. */
     AttributedString attributedLabel;
@@ -72,6 +72,7 @@ public class LogTick extends ValueTick {
      * 
      * @return The attributed string or {@code null}. 
      */
+    @Override
     public AttributedString getAttributedLabel() {
         return this.attributedLabel;
     }
