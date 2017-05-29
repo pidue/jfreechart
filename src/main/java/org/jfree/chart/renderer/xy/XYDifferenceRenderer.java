@@ -979,9 +979,21 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
         if (x_impliedZeroSubtrahend) {
             return (x_dataset.getItemCount(0) < 2);
         }
+        
+        if ((x_dataset.getItemCount(0) < 2) || (x_dataset.getItemCount(1) < 2)) {
+            return true;
+        }
 
-        return ((x_dataset.getItemCount(0) < 2)
-                || (x_dataset.getItemCount(1) < 2));
+        int l_minuendItemCount = x_dataset.getItemCount(0);
+        double l_minuendFirst  = x_dataset.getXValue(0, 0);
+        double l_minuendLast   = x_dataset.getXValue(0, l_minuendItemCount - 1);
+
+        int l_subtrahendItemCount = x_dataset.getItemCount(1);
+        double l_subtrahendFirst  = x_dataset.getXValue(1, 0);
+        double l_subtrahendLast   = x_dataset.getXValue(1,
+                l_subtrahendItemCount - 1);
+        
+        return (l_minuendFirst == l_minuendLast && l_subtrahendFirst == l_subtrahendLast);
     }
 
     /**
