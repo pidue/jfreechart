@@ -523,10 +523,8 @@ public class XYTextAnnotation extends AbstractXYAnnotation
         RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(
                 plot.getRangeAxisLocation(), orientation);
 
-        float anchorX = (float) domainAxis.valueToJava2D(
-                this.x, dataArea, domainEdge);
-        float anchorY = (float) rangeAxis.valueToJava2D(
-                this.y, dataArea, rangeEdge);
+        float anchorX = getAnchorX(domainAxis, dataArea, domainEdge);
+        float anchorY = getAnchorY(rangeAxis, dataArea, rangeEdge);
 
         if (orientation == PlotOrientation.HORIZONTAL) {
             float tempAnchor = anchorX;
@@ -557,6 +555,15 @@ public class XYTextAnnotation extends AbstractXYAnnotation
             addEntity(info, hotspot, rendererIndex, toolTip, url);
         }
 
+    }
+
+    protected float getAnchorY(ValueAxis rangeAxis, Rectangle2D dataArea, RectangleEdge rangeEdge) {
+        return (float) rangeAxis.valueToJava2D(this.y, dataArea, rangeEdge);
+
+    }
+
+    protected float getAnchorX(ValueAxis domainAxis, Rectangle2D dataArea, RectangleEdge domainEdge) {
+        return (float) domainAxis.valueToJava2D(this.x, dataArea, domainEdge);
     }
 
     /**
