@@ -759,7 +759,6 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @param line  the entity line
      * @param dataset  the dataset.
      * @param series  the series.
-     * @param item  the item.
      */
     protected void addLineEntity(EntityCollection entities, Shape line, XYDataset dataset, int series) {
         if (!getItemCreateEntity(series, 0 /* dummy item index */)) {

@@ -76,7 +76,6 @@ public class XYLineEntity extends ChartEntity {
      * @param area  the area.
      * @param dataset  the dataset.
      * @param series  the series (zero-based index).
-     * @param item  the item (zero-based index).
      * @param toolTipText  the tool tip text.
      * @param urlText  the URL text for HTML image maps.
      */
