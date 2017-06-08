@@ -32,7 +32,7 @@
     </issueManagement>
     <scm>
         <connection>scm:git:git:https://github.com/pidue/jfreechart.git</connection>
-        <developerConnection>scm:git:git:git@github.com:pidue/jfreechart.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com:pidue/jfreechart.git</developerConnection>
         <url>https://github.com/pidue/jfreechart</url>
     </scm>
 
