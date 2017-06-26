@@ -1287,6 +1287,7 @@ public class DateAxis extends ValueAxis implements Cloneable, Serializable {
             lower = this.timeline.toMillisecond(lower);
             DateRange dr = new DateRange(new Date(lower), new Date(upper));
             setRange(dr, false, false);
+            setMaximumRange(dr);
         }
 
     }

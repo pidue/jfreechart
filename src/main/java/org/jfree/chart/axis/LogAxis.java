@@ -507,7 +507,9 @@ public class LogAxis extends ValueAxis {
                 upper = calculateValueNoINF(logUpper);
                 lower = calculateValueNoINF(logLower);
             }
-            setRange(new Range(lower, upper), false, false);
+            final Range autoRange = new Range(lower, upper);
+            setRange(autoRange, false, false);
+            setMaximumRange(autoRange);
         }
 
     }

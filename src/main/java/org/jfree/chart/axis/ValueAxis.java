@@ -267,7 +267,10 @@ public abstract class ValueAxis extends Axis
 
     /** A flag indicating whether or not tick labels are rotated to vertical. */
     private boolean verticalTickLabels;
-
+    
+    // TRENOLAB: pan and zoom constraint
+    private Range maximumRange;    
+    
     /**
      * Constructs a value axis.
      *
@@ -327,7 +330,7 @@ public abstract class ValueAxis extends Axis
 
         this.verticalTickLabels = false;
         this.minorTickCount = 0;
-
+                
     }
 
     /**
@@ -1559,9 +1562,9 @@ public abstract class ValueAxis extends Axis
     public void resizeRange(double percent, double anchorValue) {
         if (percent > 0.0) {
             double halfLength = this.range.getLength() * percent / 2;
-            Range adjusted = new Range(anchorValue - halfLength,
-                    anchorValue + halfLength);
-            setRange(adjusted);
+            final double lower = anchorValue - halfLength;
+            final double upper = anchorValue + halfLength;
+            setRange(constrainToMaximumRange(lower, upper));
         }
         else {
             setAutoRange(true);
@@ -1587,9 +1590,9 @@ public abstract class ValueAxis extends Axis
         if (percent > 0.0) {
             double left = anchorValue - getLowerBound();
             double right = getUpperBound() - anchorValue;
-            Range adjusted = new Range(anchorValue - left * percent,
-                    anchorValue + right * percent);
-            setRange(adjusted);
+            double lower = anchorValue - left * percent;
+            double upper = anchorValue + right * percent;
+            setRange(constrainToMaximumRange(lower, upper));
         }
         else {
             setAutoRange(true);
@@ -1615,7 +1618,9 @@ public abstract class ValueAxis extends Axis
             r1 = start + length * upperPercent;
         }
         if ((r1 > r0) && !Double.isInfinite(r1 - r0)) {
-            setRange(new Range(r0, r1));
+            if (isInsideMaximumRange(r0, r1)) {
+                setRange(r0, r1);
+            }
         }
     }
 
@@ -1627,12 +1632,14 @@ public abstract class ValueAxis extends Axis
      * @since 1.0.13
      */
     public void pan(double percent) {
-        Range r = getRange();
+        Range r = getRange();        
         double length = range.getLength();
         double adj = length * percent;
         double lower = r.getLowerBound() + adj;
         double upper = r.getUpperBound() + adj;
-        setRange(lower, upper);
+        if (isInsideMaximumRange(lower, upper)) {
+            setRange(lower, upper);
+        }
     }
 
     /**
@@ -1767,4 +1774,19 @@ public abstract class ValueAxis extends Axis
         this.rightArrow = SerialUtils.readShape(stream);
     }
 
+    public void setMaximumRange(Range maximumRange) {
+        this.maximumRange = maximumRange;
+    }        
+    
+    protected boolean isInsideMaximumRange(double lower, double upper) {
+        return maximumRange == null || (maximumRange.contains(lower) && maximumRange.contains(upper));
+    }
+    
+    protected Range constrainToMaximumRange(double lower, double upper) {
+        if (maximumRange == null) {
+            return new Range(lower, upper);
+        } else {
+            return new Range(maximumRange.constrain(lower), maximumRange.constrain(upper));
+        }
+    }
 }
