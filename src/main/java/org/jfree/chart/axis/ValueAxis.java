@@ -1776,7 +1776,11 @@ public abstract class ValueAxis extends Axis
 
     public void setMaximumRange(Range maximumRange) {
         this.maximumRange = maximumRange;
-    }        
+    }       
+    
+    public void setMaximumRange(double lower, double upper) {
+        this.maximumRange = new Range(lower, upper);
+    }           
     
     protected boolean isInsideMaximumRange(double lower, double upper) {
         return maximumRange == null || (maximumRange.contains(lower) && maximumRange.contains(upper));

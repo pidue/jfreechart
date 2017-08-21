@@ -13,9 +13,9 @@ import org.jfree.chart.ui.RectangleEdge;
  *
  * @author paolo
  */
-public class XYAnchoredAnnotation extends XYTextAnnotation {
+public class YAnchoredAnnotation extends XYTextAnnotation {
 
-    public XYAnchoredAnnotation(String text, double x) {
+    public YAnchoredAnnotation(String text, double x) {
         super(text, x, Double.NaN);
     }
 
