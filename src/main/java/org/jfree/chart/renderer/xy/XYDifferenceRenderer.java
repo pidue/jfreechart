@@ -993,7 +993,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
         double l_subtrahendLast   = x_dataset.getXValue(1,
                 l_subtrahendItemCount - 1);
         
-        return (l_minuendFirst == l_minuendLast && l_subtrahendFirst == l_subtrahendLast);
+        return (l_minuendFirst == l_minuendLast || l_subtrahendFirst == l_subtrahendLast);
     }
 
     /**

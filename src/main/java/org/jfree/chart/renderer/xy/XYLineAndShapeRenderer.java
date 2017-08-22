@@ -820,7 +820,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         // first pass draws the background (lines, for instance)
         if (isLinePass(pass)) {
             if (getItemLineVisible(series, item)) {
-                if (this.drawSeriesLineAsPath && false) {
+                if (this.drawSeriesLineAsPath) {
                     drawPrimaryLineAsPath(state, g2, plot, dataset, pass,
                             series, item, domainAxis, rangeAxis, dataArea, entities);
                 }
