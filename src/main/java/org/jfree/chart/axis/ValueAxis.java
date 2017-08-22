@@ -1637,9 +1637,9 @@ public abstract class ValueAxis extends Axis
         double adj = length * percent;
         double lower = r.getLowerBound() + adj;
         double upper = r.getUpperBound() + adj;
-        if (isInsideMaximumRange(lower, upper)) {
-            setRange(lower, upper);
-        }
+        final Range panRange = shiftToMaximumRange(lower, upper);
+        System.out.println(panRange);
+        setRange(panRange);
     }
 
     /**
@@ -1786,6 +1786,10 @@ public abstract class ValueAxis extends Axis
         return maximumRange == null || (maximumRange.contains(lower) && maximumRange.contains(upper));
     }
     
+    protected boolean isInsideMaximumRange(double value) {
+        return maximumRange == null || maximumRange.contains(value);
+    }    
+    
     protected Range constrainToMaximumRange(double lower, double upper) {
         if (maximumRange == null) {
             return new Range(lower, upper);
@@ -1793,4 +1797,22 @@ public abstract class ValueAxis extends Axis
             return new Range(maximumRange.constrain(lower), maximumRange.constrain(upper));
         }
     }
+    
+    protected Range shiftToMaximumRange(double lower, double upper) {
+        if (maximumRange == null || (maximumRange.contains(upper) && maximumRange.contains(lower))) {
+            // tutto contenuto
+            return new Range(lower, upper);
+        } else if (upper-lower > maximumRange.getLength()) {
+            // range troppo grande!
+            return maximumRange;
+        } else if (maximumRange.contains(lower) || maximumRange.getUpperBound() <= lower) {
+            // l'upper sborda: lo attaco all'upper del maximumRange
+            return new Range(maximumRange.getUpperBound() - upper + lower, maximumRange.getUpperBound());
+        } else if (maximumRange.contains(upper) || maximumRange.getLowerBound() >= upper) {
+            // il lower sborda: lo attaco al lower del maximumRange
+            return new Range(maximumRange.getLowerBound(), maximumRange.getLowerBound() + upper - lower);
+        } else  {
+            throw new IllegalArgumentException("Unsupported?");
+        }
+    }    
 }
