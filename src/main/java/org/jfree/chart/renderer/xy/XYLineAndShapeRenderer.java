@@ -766,13 +766,13 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         }
         
         String tip = null;
-        XYToolTipGenerator generator = getToolTipGenerator(series, 0 /* dummy item index */);
+        XYToolTipGenerator generator = getToolTipGenerator(series, -1 /* dummy item index */);
         if (generator != null) {
-            tip = generator.generateToolTip(dataset, series, 0 /* dummy item index */);
+            tip = generator.generateToolTip(dataset, series, -1 /* dummy item index */);
         }
         String url = null;
         if (getURLGenerator() != null) {
-            url = getURLGenerator().generateURL(dataset, series, 0 /* dummy item index */);
+            url = getURLGenerator().generateURL(dataset, series, -1 /* dummy item index */);
         }        
         
         Stroke stroke = lineEntityStrokeMap.getOrDefault(series, defaultLineEntityStroke);

@@ -412,6 +412,13 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
         if (!((0 == x_series) && (0 == x_item))) {
             return;
         }
+        
+        // do not draw if either series is not viisble
+        for(int i = 0; i < x_dataset.getSeriesCount(); i++) {
+            if (!isSeriesVisible(i)) {
+                return;
+            }
+        }
 
         boolean b_impliedZeroSubtrahend = (1 == x_dataset.getSeriesCount());
 
