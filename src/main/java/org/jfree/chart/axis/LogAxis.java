@@ -509,7 +509,6 @@ public class LogAxis extends ValueAxis {
             }
             final Range autoRange = new Range(lower, upper);
             setRange(autoRange, false, false);
-            setMaximumRange(autoRange);
         }
 
     }

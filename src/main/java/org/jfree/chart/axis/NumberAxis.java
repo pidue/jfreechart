@@ -505,7 +505,6 @@ public class NumberAxis extends ValueAxis implements Cloneable, Serializable {
             }
             final Range autoRange = new Range(lower, upper);
             setRange(autoRange, false, false);
-            setMaximumRange(autoRange);
         }
 
     }

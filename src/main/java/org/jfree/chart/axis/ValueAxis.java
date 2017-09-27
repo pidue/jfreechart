@@ -1254,7 +1254,7 @@ public abstract class ValueAxis extends Axis
      *
      * @see #getRange()
      */
-    public void setRange(Range range) {
+    public void setRange(Range range) {        
         // defer argument checking
         setRange(range, true, true);
     }
@@ -1275,7 +1275,7 @@ public abstract class ValueAxis extends Axis
      * @see #getRange()
      */
     public void setRange(Range range, boolean turnOffAutoRange, 
-            boolean notify) {
+            boolean notify) {     
         Args.nullNotPermitted(range, "range");
         if (range.getLength() <= 0.0) {
             throw new IllegalArgumentException(
@@ -1638,7 +1638,6 @@ public abstract class ValueAxis extends Axis
         double lower = r.getLowerBound() + adj;
         double upper = r.getUpperBound() + adj;
         final Range panRange = shiftToMaximumRange(lower, upper);
-        System.out.println(panRange);
         setRange(panRange);
     }
 
@@ -1774,11 +1773,27 @@ public abstract class ValueAxis extends Axis
         this.rightArrow = SerialUtils.readShape(stream);
     }
 
+    public Range getMaximumRange() {
+        return maximumRange;
+    }        
+
     public void setMaximumRange(Range maximumRange) {
+        if (maximumRange != null && maximumRange.isNaNRange()) {
+            throw new IllegalArgumentException("Maximum Range cannot be NaN");
+        }        
+        if (maximumRange != null && maximumRange.getLength() <= 0.0) {
+            throw new IllegalArgumentException("Maximum Range cannot be empty");
+        }
         this.maximumRange = maximumRange;
     }       
     
     public void setMaximumRange(double lower, double upper) {
+        if (lower == Double.NaN || upper == Double.NaN) {
+            throw new IllegalArgumentException("Maximum Range cannot be NaN");
+        }
+        if (lower == upper) {
+            throw new IllegalArgumentException("Maximum Range cannot be empty");
+        }
         this.maximumRange = new Range(lower, upper);
     }           
     
