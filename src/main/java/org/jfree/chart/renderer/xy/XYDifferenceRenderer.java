@@ -504,7 +504,11 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
             l_y1 = x_dataset.getYValue(0, l_minuendItem);
             l_x2 = x_dataset.getXValue(0, l_minuendItem + 1);
             l_y2 = x_dataset.getYValue(0, l_minuendItem + 1);
-
+            
+            if (Double.isNaN(l_x1) || Double.isNaN(l_y1) || Double.isNaN(l_x2) || Double.isNaN(l_y2)) {
+                return;
+            }
+            
             l_minuendCurX  = new Double(l_x1);
             l_minuendCurY  = new Double(l_y1);
             l_minuendNextX = new Double(l_x2);
@@ -649,7 +653,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
                 // compute common denominator
                 double l_denominator = ((l_y4 - l_y3) * (l_x2 - l_x1))
                         - ((l_x4 - l_x3) * (l_y2 - l_y1));
-
+                
                 // compute common deltas
                 double l_deltaY = l_y1 - l_y3;
                 double l_deltaX = l_x1 - l_x3;
@@ -873,6 +877,12 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
                                  int x_series,
                                  int x_item,
                                  CrosshairState x_crosshairState) {
+        // do not draw if either series is not viisble
+        for(int i = 0; i < x_dataset.getSeriesCount(); i++) {
+            if (!isSeriesVisible(i)) {
+                return;
+            }
+        }
 
         Shape l_entityArea = null;
         EntityCollection l_entities = null;
