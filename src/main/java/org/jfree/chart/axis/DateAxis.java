@@ -1108,6 +1108,86 @@ public class DateAxis extends ValueAxis implements Cloneable, Serializable {
                 Locale.getDefault());
     }
 
+    public static TickUnitSource createStandardTimeTickUnits() {
+        return createStandardTimeTickUnits(TimeZone.getDefault(),
+                Locale.getDefault());
+    }
+    
+    public static TickUnitSource createStandardTimeTickUnits(TimeZone zone,
+            Locale locale) {
+
+        Args.nullNotPermitted(zone, "zone");
+        Args.nullNotPermitted(locale, "locale");
+        TickUnits units = new TickUnits();
+
+        // date formatters
+        DateFormat f1 = new SimpleDateFormat("HH:mm:ss.SSS", locale);
+        DateFormat f2 = new SimpleDateFormat("HH:mm:ss", locale);
+        DateFormat f3 = new SimpleDateFormat("HH:mm", locale);
+
+        f1.setTimeZone(zone);
+        f2.setTimeZone(zone);
+        f3.setTimeZone(zone);
+
+
+        // milliseconds
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 1, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 5,
+                DateTickUnitType.MILLISECOND, 1, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 10,
+                DateTickUnitType.MILLISECOND, 1, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 25,
+                DateTickUnitType.MILLISECOND, 5, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 50,
+                DateTickUnitType.MILLISECOND, 10, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 100,
+                DateTickUnitType.MILLISECOND, 10, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 250,
+                DateTickUnitType.MILLISECOND, 10, f1));
+        units.add(new DateTickUnit(DateTickUnitType.MILLISECOND, 500,
+                DateTickUnitType.MILLISECOND, 50, f1));
+
+        // seconds
+        units.add(new DateTickUnit(DateTickUnitType.SECOND, 1,
+                DateTickUnitType.MILLISECOND, 50, f2));
+        units.add(new DateTickUnit(DateTickUnitType.SECOND, 5,
+                DateTickUnitType.SECOND, 1, f2));
+        units.add(new DateTickUnit(DateTickUnitType.SECOND, 10,
+                DateTickUnitType.SECOND, 1, f2));
+        units.add(new DateTickUnit(DateTickUnitType.SECOND, 30,
+                DateTickUnitType.SECOND, 5, f2));
+
+        // minutes
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 1,
+                DateTickUnitType.SECOND, 5, f3));
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 2,
+                DateTickUnitType.SECOND, 10, f3));
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 5,
+                DateTickUnitType.MINUTE, 1, f3));
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 10,
+                DateTickUnitType.MINUTE, 1, f3));
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 15,
+                DateTickUnitType.MINUTE, 5, f3));
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 20,
+                DateTickUnitType.MINUTE, 5, f3));
+        units.add(new DateTickUnit(DateTickUnitType.MINUTE, 30,
+                DateTickUnitType.MINUTE, 5, f3));
+
+        // hours
+        units.add(new DateTickUnit(DateTickUnitType.HOUR, 1,
+                DateTickUnitType.MINUTE, 5, f3));
+        units.add(new DateTickUnit(DateTickUnitType.HOUR, 2,
+                DateTickUnitType.MINUTE, 10, f3));
+        units.add(new DateTickUnit(DateTickUnitType.HOUR, 4,
+                DateTickUnitType.MINUTE, 30, f3));
+        units.add(new DateTickUnit(DateTickUnitType.HOUR, 6,
+                DateTickUnitType.HOUR, 1, f3));
+        units.add(new DateTickUnit(DateTickUnitType.HOUR, 12,
+                DateTickUnitType.HOUR, 1, f3));
+        
+        return units;
+    }
+    
     /**
      * Returns a collection of standard date tick units.  This collection will
      * be used by default, but you are free to create your own collection if
@@ -1287,7 +1367,6 @@ public class DateAxis extends ValueAxis implements Cloneable, Serializable {
             lower = this.timeline.toMillisecond(lower);
             DateRange dr = new DateRange(new Date(lower), new Date(upper));
             setRange(dr, false, false);
-            setMaximumRange(dr);
         }
 
     }
